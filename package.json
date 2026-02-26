@@ -1,0 +1,18 @@
+{
+  "name": "poonama-portfolio",
+  "version": "1.0.0",
+  "description": "Professional Portfolio of Poonama Yadav",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^r128",
+    "aos": "^2.3.4"
+  },
+  "devDependencies": {
+    "vite": "^4.3.9"
+  }
+}
