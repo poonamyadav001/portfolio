@@ -9,6 +9,8 @@ class TaskManager {
         this.searchQuery = '';
         this.darkMode = localStorage.getItem('darkMode') === 'true';
         this.draggedTask = null;
+        this.currentModalTaskId = null;
+        this.modalSubtasks = [];
 
         this.initializeApp();
     }
@@ -168,7 +170,7 @@ class TaskManager {
             const query = this.searchQuery.toLowerCase();
             filtered = filtered.filter(t => 
                 t.name.toLowerCase().includes(query) || 
-                t.notes.toLowerCase().includes(query)
+                (t.notes || '').toLowerCase().includes(query)
             );
         }
 
@@ -318,6 +320,15 @@ class TaskManager {
             });
         });
 
+        taskList.querySelectorAll('.subtask-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                this.toggleSubtask(
+                    parseInt(e.target.dataset.taskId),
+                    parseInt(e.target.dataset.subtaskId)
+                );
+            });
+        });
+
         // Drag and drop
         taskList.querySelectorAll('.task-item').forEach(item => {
             item.draggable = true;
@@ -398,49 +409,90 @@ class TaskManager {
 
     // ============ MODALS ============
     openTaskModal(taskId = null) {
+        this.currentModalTaskId = taskId;
         const modal = document.getElementById('taskModal');
         const task = taskId ? this.tasks.find(t => t.id === taskId) : null;
 
-        if (task) {
-            document.getElementById('modalTaskName').value = task.name;
-            document.getElementById('modalTaskDesc').value = task.notes;
-            document.getElementById('modalCategory').value = task.category;
-            document.getElementById('modalPriority').value = task.priority;
-            document.getElementById('modalDeadline').value = task.deadline || '';
-            document.getElementById('modalReminder').value = task.reminder;
+        const modalName = document.getElementById('modalTaskName');
+        const modalDesc = document.getElementById('modalTaskDesc');
+        const modalCategory = document.getElementById('modalCategory');
+        const modalPriority = document.getElementById('modalPriority');
+        const modalDeadline = document.getElementById('modalDeadline');
+        const modalReminder = document.getElementById('modalReminder');
+        const subtasksList = document.getElementById('subtasksList');
 
-            const subtasksList = document.getElementById('subtasksList');
-            subtasksList.innerHTML = task.subtasks.map(st => `
-                <div class="subtask-item" style="margin-bottom: 8px;">
+        if (task) {
+            this.modalSubtasks = [...task.subtasks];
+            modalName.value = task.name;
+            modalDesc.value = task.notes;
+            modalCategory.value = task.category;
+            modalPriority.value = task.priority;
+            modalDeadline.value = task.deadline || '';
+            modalReminder.value = task.reminder;
+        } else {
+            this.modalSubtasks = [];
+            modalName.value = '';
+            modalDesc.value = '';
+            modalCategory.value = 'Personal';
+            modalPriority.value = 'Medium';
+            modalDeadline.value = '';
+            modalReminder.value = 'none';
+        }
+
+        subtasksList.innerHTML = this.modalSubtasks.map(st => `
+                <div class="subtask-item" style="margin-bottom: 8px; display:flex; align-items:center; gap: 8px;">
                     <input type="checkbox" ${st.completed ? 'checked' : ''} 
                         class="subtask-toggle" data-subtask-id="${st.id}">
                     <span>${st.text}</span>
-                    <button class="task-action-btn" onclick="taskManager.deleteSubtask(${task.id}, ${st.id})" style="margin-left: auto;">🗑️</button>
+                    <button type="button" class="task-action-btn subtask-remove" data-subtask-id="${st.id}" style="margin-left:auto;">🗑️</button>
                 </div>
             `).join('');
 
-            document.getElementById('saveTaskBtn').onclick = () => {
-                const updates = {
-                    name: document.getElementById('modalTaskName').value,
-                    notes: document.getElementById('modalTaskDesc').value,
-                    category: document.getElementById('modalCategory').value,
-                    priority: document.getElementById('modalPriority').value,
-                    deadline: document.getElementById('modalDeadline').value,
-                    reminder: document.getElementById('modalReminder').value
-                };
-                this.updateTask(taskId, updates);
-                this.closeModal('taskModal');
-                this.showNotification('Task updated ✨');
+        subtasksList.querySelectorAll('.subtask-toggle').forEach(toggle => {
+            toggle.addEventListener('change', (e) => {
+                const subtaskId = parseInt(e.target.dataset.subtaskId);
+                const subtask = this.modalSubtasks.find(st => st.id === subtaskId);
+                if (subtask) {
+                    subtask.completed = !subtask.completed;
+                }
+            });
+        });
+
+        subtasksList.querySelectorAll('.subtask-remove').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const removeId = parseInt(e.target.dataset.subtaskId);
+                this.modalSubtasks = this.modalSubtasks.filter(st => st.id !== removeId);
+                this.openTaskModal(this.currentModalTaskId);
+            });
+        });
+
+        document.getElementById('saveTaskBtn').onclick = () => {
+            const taskData = {
+                name: modalName.value,
+                notes: modalDesc.value,
+                category: modalCategory.value,
+                priority: modalPriority.value,
+                deadline: modalDeadline.value,
+                reminder: modalReminder.value,
+                subtasks: [...this.modalSubtasks]
             };
-        } else {
-            document.getElementById('modalTaskName').value = '';
-            document.getElementById('modalTaskDesc').value = '';
-            document.getElementById('modalCategory').value = 'Personal';
-            document.getElementById('modalPriority').value = 'Medium';
-            document.getElementById('modalDeadline').value = '';
-            document.getElementById('modalReminder').value = 'none';
-            document.getElementById('subtasksList').innerHTML = '';
-        }
+
+            if (this.currentModalTaskId) {
+                this.updateTask(this.currentModalTaskId, taskData);
+                this.showNotification('Task updated ✨');
+            } else {
+                this.addTask(taskData.name, taskData.category, taskData.priority, taskData.deadline, 'none');
+                const createdTask = this.tasks[0];
+                if (createdTask) {
+                    createdTask.notes = taskData.notes;
+                    createdTask.reminder = taskData.reminder;
+                    createdTask.subtasks = taskData.subtasks;
+                    this.saveTasks();
+                }
+            }
+
+            this.closeModal('taskModal');
+        };
 
         modal.classList.add('active');
     }
@@ -577,9 +629,15 @@ class TaskManager {
         // Add subtask
         document.getElementById('addSubtaskBtn').addEventListener('click', () => {
             const input = document.getElementById('newSubtask');
-            if (input.value.trim()) {
-                // This will be handled in modal context
+            const text = input.value.trim();
+            if (text) {
+                this.modalSubtasks.push({
+                    id: Date.now(),
+                    text,
+                    completed: false
+                });
                 input.value = '';
+                this.openTaskModal(this.currentModalTaskId);
             }
         });
 
@@ -599,9 +657,9 @@ class TaskManager {
         // Goal button
         document.getElementById('goalBtn').addEventListener('click', () => {
             this.openStatsModal();
-        });}
-
+        });
     }
+}
 
 // Initialize the app
 let taskManager;
@@ -612,3 +670,4 @@ if (typeof document !== 'undefined' && typeof window !== 'undefined') {
 } else {
     console.warn('TaskManager script loaded outside a browser environment. Initialization is skipped.');
 }
+

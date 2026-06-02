@@ -137,12 +137,11 @@ h1 {
     border-color: rgba(65, 84, 255, 0.25);
     background: #eef2ff;
 }
-
-/* Hover states: make filter/category/priority buttons highlight blue on hover */
+ /* Hover states: make filter/category/priority buttons highlight blue on hover */
 .filter-btn:hover,
 .category-btn:hover,
 .priority-btn:hover {
-    background: #eef5ff; /* subtle blue */
+    background: #eef5ff; 
     border-color: rgba(65, 84, 255, 0.25);
     color: var(--primary);
     transform: translateY(-2px);
@@ -210,6 +209,17 @@ h1 {
     border: 1px solid rgba(28, 60, 123, 0.12);
     background: #ffffff;
     color: var(--text);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.task-input:focus,
+.select-input:focus,
+.search-input:focus,
+.form-input:focus,
+#goalInput:focus {
+    outline: none;
+    border-color: rgba(65, 84, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(65, 84, 255, 0.1);
 }
 
 .task-options {
@@ -233,9 +243,8 @@ h1 {
 }
 
 .tasks-container {
-    min-height: 55%;
-   
-
+    min-height: 300px;
+    flex: 1;
 }
 
 .task-list {
@@ -260,7 +269,18 @@ h1 {
 }
 
 .task-item.completed {
-    opacity: 0.75;
+    opacity: 0.6;
+    background: rgba(42, 181, 125, 0.08);
+}
+
+.task-item.completed .task-text {
+    text-decoration: line-through;
+    color: var(--muted);
+}
+
+.task-item.pinned {
+    border-color: rgba(65, 84, 255, 0.25);
+    background: rgba(65, 84, 255, 0.05);
 }
 
 .task-header {
@@ -333,7 +353,7 @@ h1 {
     background: rgba(65, 84, 255, 0.08);
     text-align: center;
     color: var(--muted);
- 
+    font-size: 1.1rem;
 }
 
 .modal {
@@ -373,14 +393,115 @@ h1 {
     margin-bottom: 20px;
 }
 
+.modal-header h2 {
+    margin: 0;
+}
+
 .modal-body {
     display: grid;
     gap: 18px;
+    margin-bottom: 20px;
+}
+
+.stats-modal {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-item {
+    background: rgba(65, 84, 255, 0.05);
+    padding: 20px;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.stat-item h3 {
+    margin: 0 0 10px;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.stat-item p {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.subtasks {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(65, 84, 255, 0.1);
+}
+
+.subtask-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+.subtask-item input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: var(--primary);
+}
+
+.subtask-item span {
+    flex: 1;
+}
+
+.subtask-item input[type="checkbox"]:checked + span {
+    text-decoration: line-through;
+    color: var(--muted);
+}
+
+.deadline-item.overdue {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.deadline-item.today {
+    color: #f2a43d;
+    font-weight: 600;
+}
+
+.deadline-item.upcoming {
+    color: #4154ff;
 }
 
 .form-group {
     display: grid;
     gap: 10px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: var(--muted);
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+    color: var(--text);
+}
+
+.form-btn {
+    background: rgba(65, 84, 255, 0.1);
+    color: var(--primary);
+    padding: 12px 18px;
+    font-weight: 600;
 }
 
 .form-btn.primary {
@@ -441,13 +562,401 @@ h1 {
     background: #0e1b38;
 }
 
+.dark-mode .task-item.completed {
+    background: rgba(42, 181, 125, 0.15);
+}
+
+.dark-mode .stat-item {
+    background: rgba(65, 84, 255, 0.12);
+}
+
+.dark-mode .close-btn {
+    color: #aaa;
+}
+
+.dark-mode .close-btn:hover {
+    color: #f1f4ff;
+}
+
+/* ============ CHECKBOX STYLING ============ */
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+}
+
+input[type="checkbox"]:hover {
+    opacity: 0.8;
+}
+
+input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* ============ PRIORITY BUTTON COLORS ============ */
+.priority-btn.high {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.priority-btn.high:hover {
+    background: rgba(231, 76, 60, 0.15);
+}
+
+.priority-btn.high.active {
+    background: rgba(231, 76, 60, 0.2);
+    border-color: #e74c3c;
+}
+
+.priority-btn.medium {
+    background: rgba(242, 164, 61, 0.1);
+    color: #f2a43d;
+}
+
+.priority-btn.medium:hover {
+    background: rgba(242, 164, 61, 0.15);
+}
+
+.priority-btn.medium.active {
+    background: rgba(242, 164, 61, 0.2);
+    border-color: #f2a43d;
+}
+
+.priority-btn.low {
+    background: rgba(42, 181, 125, 0.1);
+    color: #2ab57d;
+}
+
+.priority-btn.low:hover {
+    background: rgba(42, 181, 125, 0.15);
+}
+
+.priority-btn.low.active {
+    background: rgba(42, 181, 125, 0.2);
+    border-color: #2ab57d;
+}
+
+/* ============ CATEGORY BADGE VARIANTS ============ */
+.category-badge.Study {
+    background: rgba(100, 130, 255, 0.12);
+    color: #6482ff;
+}
+
+.category-badge.Work {
+    background: rgba(65, 84, 255, 0.12);
+    color: #4154ff;
+}
+
+.category-badge.Personal {
+    background: rgba(255, 99, 132, 0.12);
+    color: #ff6384;
+}
+
+.category-badge.Health {
+    background: rgba(42, 181, 125, 0.12);
+    color: #2ab57d;
+}
+
+.category-badge.Shopping {
+    background: rgba(255, 192, 61, 0.12);
+    color: #ffc03d;
+}
+
+/* ============ INPUT PLACEHOLDERS ============ */
+.task-input::placeholder,
+.select-input::placeholder,
+.search-input::placeholder,
+.form-input::placeholder,
+#goalInput::placeholder,
+#newSubtask::placeholder {
+    color: var(--muted);
+    opacity: 0.7;
+}
+
+/* ============ DISABLED STATES ============ */
+button:disabled,
+.form-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+    background: rgba(0, 0, 0, 0.05);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* ============ BUTTON ACTIVE STATES ============ */
+.quick-action:active,
+.add-btn:active,
+.form-btn:active,
+.task-action-btn:active {
+    transform: scale(0.98);
+}
+
+.filter-btn:active,
+.category-btn:active,
+.priority-btn:active {
+    transform: scale(0.98);
+}
+
+/* ============ SCROLLBAR STYLING ============ */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(65, 84, 255, 0.05);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(65, 84, 255, 0.3);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(65, 84, 255, 0.5);
+}
+
+/* ============ SELECTION STYLING ============ */
+::selection {
+    background: rgba(65, 84, 255, 0.3);
+    color: var(--text);
+}
+
+::-moz-selection {
+    background: rgba(65, 84, 255, 0.3);
+    color: var(--text);
+}
+
+/* ============ ANIMATIONS ============ */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* ============ MODAL ANIMATIONS ============ */
+.modal.active .modal-content {
+    animation: slideIn 0.3s ease;
+}
+
+.task-item {
+    animation: slideIn 0.2s ease;
+}
+
+/* ============ FORM STYLING ============ */
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234154ff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+/* ============ LINK & TEXT STYLING ============ */
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+h2, h3, h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+/* ============ ACCESSIBILITY ============ */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Focus visible for keyboard navigation */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* ============ DARK MODE EXTENDED ============ */
+.dark-mode button:not(.form-btn.primary):not(.add-btn):not(.stats-btn):not(.theme-toggle) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .filter-btn,
+.dark-mode .category-btn,
+.dark-mode .priority-btn,
+.dark-mode .quick-action {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e6ebff;
+}
+
+.dark-mode .filter-btn.active,
+.dark-mode .category-btn.active,
+.dark-mode .priority-btn.active {
+    background: rgba(65, 84, 255, 0.2);
+    border-color: rgba(65, 84, 255, 0.4);
+}
+
+.dark-mode .sidebar-section h3 {
+    color: #aaa;
+}
+
+.dark-mode .empty-state {
+    background: rgba(65, 84, 255, 0.1);
+    color: #aaa;
+}
+
+.dark-mode .task-meta,
+.dark-mode .meta-item {
+    color: #999;
+}
+
+.dark-mode .modal {
+    background: rgba(10, 15, 30, 0.65);
+}
+
+.dark-mode .notification {
+    background: var(--success);
+}
+
+.dark-mode input::placeholder,
+.dark-mode select::placeholder,
+.dark-mode textarea::placeholder {
+    color: #666;
+}
+
+.dark-mode ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.dark-mode ::selection {
+    background: rgba(65, 84, 255, 0.4);
+    color: #f1f4ff;
+}
+
+/* ============ HOVER & ACTIVE IMPROVEMENTS ============ */
+.theme-toggle:active,
+.stats-btn:active {
+    transform: scale(0.95);
+}
+
+.quick-action:focus-visible,
+.form-btn:focus-visible,
+.task-action-btn:focus-visible {
+    box-shadow: 0 0 0 3px rgba(65, 84, 255, 0.2);
+}
+
+.add-btn:focus-visible {
+    box-shadow: 0 0 0 3px rgba(65, 84, 255, 0.3);
+}
+
+/* ============ MOBILE RESPONSIVE ============ */
 @media (max-width: 1024px) {
     .container {
         grid-template-columns: 1fr;
     }
+
+    .task-options {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 720px) {
+    #app {
+        padding: 16px;
+    }
+
+    .sidebar,
+    .main-content {
+        padding: 16px;
+        border-radius: 20px;
+    }
+
     .task-options {
         grid-template-columns: 1fr;
     }
@@ -460,4 +969,63 @@ h1 {
         flex-direction: column;
         align-items: flex-start;
     }
+
+    .add-btn {
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        max-height: 95vh;
+        border-radius: 20px;
+    }
+
+    .stats-modal {
+        grid-template-columns: 1fr;
+    }
+
+    .header-controls {
+        gap: 8px;
+    }
+
+    .theme-toggle,
+    .stats-btn {
+        padding: 10px 14px;
+    }
 }
+
+@media (max-width: 480px) {
+    #app {
+        padding: 12px;
+    }
+
+    .sidebar,
+    .main-content {
+        padding: 12px;
+        border-radius: 16px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .priority-badge,
+    .category-badge,
+    .meta-item {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+
+    .task-item {
+        padding: 14px 16px;
+        border-radius: 16px;
+    }
+
+    .task-text {
+        font-size: 0.95rem;
+    }
+} 
