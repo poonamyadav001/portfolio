@@ -1,451 +1,245 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poonama Yadav - BCA Portfolio</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link rel="stylesheet" href="./style.css">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <span class="logo-gradient">PY</span>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="#home" class="nav-link">Home</a></li>
-                <li><a href="#about" class="nav-link">About</a></li>
-                <li><a href="#skills" class="nav-link">Skills</a></li>
-                <li><a href="#projects" class="nav-link">Projects</a></li>
-                <li><a href="#contact" class="nav-link">Contact</a></li>
-            </ul>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section with 3D -->
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1 class="hero-title" data-aos="fade-up">
-                    Hi, I'm <span class="gradient-text">Poonama Yadav</span>
-                </h1>
-                <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="200">
-                    BCA Student | Full Stack Developer | Creative Coder
-                </p>
-                <p class="hero-description" data-aos="fade-up" data-aos-delay="400">
-                    Building beautiful and functional web experiences with modern technologies
-                </p>
-                <div class="hero-buttons" data-aos="fade-up" data-aos-delay="600">
-                    <a href="#projects" class="btn btn-primary">View My Work</a>
-                    <a href="#contact" class="btn btn-secondary">Get In Touch</a>
-                </div>
-            </div>
-            <div class="hero-canvas" id="heroCanvas"></div>
-        </div>
-        <div class="scroll-indicator">
-            <span>Scroll to explore</span>
-            <i class="fas fa-chevron-down"></i>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="about">
+ 
+        <!-- Main Container -->
         <div class="container">
-            <h2 class="section-title" data-aos="fade-up">About Me</h2>
-            <div class="about-content">
-                <div class="about-text" data-aos="fade-right">
-                    <p>
-                        I'm a passionate BCA student in my 4th semester, dedicated to creating beautiful and functional web applications. With a strong foundation in web development and a keen eye for design, I bring creativity and technical expertise to every project.
-                    </p>
-                    <p>
-                        My journey in web development started with a curiosity about how websites work, and it has evolved into a passion for building intuitive user interfaces and solving complex problems with clean, efficient code.
-                    </p>
-                    <p>
-                        When I'm not coding, you can find me exploring new technologies, learning about UI/UX design, or contributing to open-source projects.
-                    </p>
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3>Quick Actions</h3>
+                    <button class="quick-action" id="addTaskBtn">➕ New Task</button>
+                    <button class="quick-action" id="goalBtn">🎯 Set Goal</button>
                 </div>
-                <div class="about-stats" data-aos="fade-left">
-                    <div class="stat-card">
-                        <div class="stat-number">4+</div>
-                        <div class="stat-label">Semester</div>
+
+                <div class="sidebar-section">
+                    <h3>Filters</h3>
+                    <button class="filter-btn active" data-filter="all">All Tasks</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                    <button class="filter-btn" data-filter="pinned">📌 Pinned</button>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Categories</h3>
+                    <button class="category-btn active" data-category="all">All</button>
+                    <button class="category-btn" data-category="Study">📚 Study</button>
+                    <button class="category-btn" data-category="Work">💼 Work</button>
+                    <button class="category-btn" data-category="Personal">👤 Personal</button>
+                    <button class="category-btn" data-category="Health">🏃 Health</button>
+                    <button class="category-btn" data-category="Shopping">🛒 Shopping</button>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Priorities</h3>
+                    <button class="priority-btn" data-priority="all">All Priorities</button>
+                    <button class="priority-btn high" data-priority="High">🔴 High</button>
+                    <button class="priority-btn medium" data-priority="Medium">🟡 Medium</button>
+                    <button class="priority-btn low" data-priority="Low">🟢 Low</button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Progress Bar -->
+                <div class="progress-section">
+                    <div class="progress-info">
+                        <span id="progressLabel">Progress</span>
+                        <span id="progressPercentage">0%</span>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-number">7+</div>
-                        <div class="stat-label">Skills</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">10+</div>
-                        <div class="stat-label">Projects</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">100%</div>
-                        <div class="stat-label">Dedication</div>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
                     </div>
                 </div>
-            </div>
+
+                <!-- Input Section -->
+                <div class="task-input-section">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="taskInput" 
+                            placeholder="What needs to be done?" 
+                            class="task-input"
+                        >
+                    </div>
+                    <div class="task-options">
+                        <select id="categorySelect" class="select-input" aria-label="Task category">
+                            <option value="Personal">Personal</option>
+                            <option value="Work">Work</option>
+                            <option value="Study">Study</option>
+                            <option value="Health">Health</option>
+                            <option value="Shopping">Shopping</option>
+                        </select>
+                        <select id="prioritySelect" class="select-input" aria-label="Task priority">
+                            <option value="Medium">Medium Priority</option>
+                            <option value="High">High Priority</option>
+                            <option value="Low">Low Priority</option>
+                        </select>
+                        <input 
+                            type="date" 
+                            id="deadlineInput" 
+                            class="select-input"
+                            aria-label="Task deadline"
+                        >
+                        <select id="recurringSelect" class="select-input" aria-label="Task recurrence">
+                            <option value="none">No Repeat</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <button id="addBtn" class="add-btn">Add Task</button>
+                </div>
+
+                <!-- Search Section -->
+                <div class="search-section">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="🔍 Search tasks..." 
+                        class="search-input"
+                    >
+                </div>
+
+                <!-- Tasks Container -->
+                <div id="tasksContainer" class="tasks-container">
+                    <ul id="taskList" class="task-list">
+                        <!-- Tasks will be added here -->
+                    </ul>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState">
+                    <p>🎉 No tasks! Time to relax or add a new task.</p>
+                </div>
+            </main>
         </div>
-    </section>
 
-    <!-- Skills Section -->
-    <section id="skills" class="skills">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">Skills & Expertise</h2>
-            
-            <div class="skills-grid">
-                <!-- Frontend Skills -->
-                <div class="skill-category" data-aos="fade-up" data-aos-delay="0">
-                    <h3 class="category-title">Frontend</h3>
-                    <div class="skill-cards">
-                        <div class="skill-card">
-                            <i class="fab fa-html5"></i>
-                            <span>HTML5</span>
-                            <p>Semantic & Responsive</p>
-                        </div>
-                        <div class="skill-card">
-                            <i class="fab fa-css3-alt"></i>
-                            <span>CSS3</span>
-                            <p>Animations & Flexbox</p>
-                        </div>
-                        <div class="skill-card">
-                            <i class="fab fa-js-square"></i>
-                            <span>JavaScript</span>
-                            <p>ES6+ & DOM</p>
-                        </div>
-                        <div class="skill-card">
-                            <i class="fab fa-bootstrap"></i>
-                            <span>Bootstrap</span>
-                            <p>Responsive Design</p>
-                        </div>
-                    </div>
+        <!-- Modal for Task Details -->
+        <div id="taskModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Task Details</h2>
+                    <button class="close-btn">&times;</button>
                 </div>
-
-                <!-- Tools & Frameworks -->
-                <div class="skill-category" data-aos="fade-up" data-aos-delay="100">
-                    <h3 class="category-title">Tools & Frameworks</h3>
-                    <div class="skill-cards">
-                        <div class="skill-card">
-                            <i class="fas fa-box"></i>
-                            <span>Vite</span>
-                            <p>Build Tool</p>
-                        </div>
-                        <div class="skill-card">
-                            <i class="fab fa-python"></i>
-                            <span>Python</span>
-                            <p>Programming</p>
-                        </div>
-                        <div class="skill-card">
-                            <i class="fas fa-table"></i>
-                            <span>Excel</span>
-                            <p>Data Analysis</p>
-                        </div>
-                        <div class="skill-card">
-                            <i class="fas fa-cube"></i>
-                            <span>Three.js</span>
-                            <p>3D Graphics</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Design Skills -->
-                <div class="skill-category" data-aos="fade-up" data-aos-delay="200">
-                    <h3 class="category-title">Design</h3>
-                    <div class="skill-cards">
-                        <div class="skill-card">
-                            <i class="fas fa-palette"></i>
-                            <span>UI Design</span>
-                            <p>User Interfaces</p>
-                        </div>
-                        <div class="skill-card">
-                            <i class="fas fa-mobile-alt"></i>
-                            <span>Responsive</span>
-                            <p>Mobile First</p>
-                        </div>
-                        <div class="skill-card">
-                            <i class="fas fa-bolt"></i>
-                            <span>Animations</span>
-                            <p>CSS & JS</p>
-                        </div>
-                        <div class="skill-card">
-                            <i class="fas fa-pen-nib"></i>
-                            <span>UX Design</span>
-                            <p>User Experience</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progress Bars -->
-            <div class="skills-progress" data-aos="fade-up" data-aos-delay="300">
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">HTML & CSS</span>
-                        <span class="progress-value">95%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 95%"></div>
-                    </div>
-                </div>
-
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">JavaScript</span>
-                        <span class="progress-value">85%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 85%"></div>
-                    </div>
-                </div>
-
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">Bootstrap & Vite</span>
-                        <span class="progress-value">90%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 90%"></div>
-                    </div>
-                </div>
-
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">Python</span>
-                        <span class="progress-value">80%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 80%"></div>
-                    </div>
-                </div>
-
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">Three.js & 3D</span>
-                        <span class="progress-value">70%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 70%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Projects Section -->
-    <section id="projects" class="projects">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">Featured Projects</h2>
-            
-            <div class="projects-grid">
-                <!-- Project 1 -->
-                <div class="project-card" data-aos="fade-up" data-aos-delay="0">
-                    <div class="project-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>E-Commerce Platform</h3>
-                        <p>Full-featured e-commerce website built with HTML, CSS, JavaScript and Bootstrap. Includes product catalog, shopping cart, and checkout functionality.</p>
-                        <div class="project-tags">
-                            <span class="tag">HTML</span>
-                            <span class="tag">CSS</span>
-                            <span class="tag">JavaScript</span>
-                            <span class="tag">Bootstrap</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="#" class="project-link">View Project</a>
-                            <a href="#" class="project-link">Source Code</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 2 -->
-                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="project-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>Task Management App</h3>
-                        <p>Interactive task management application with add, edit, delete, and filter functionality. Built with vanilla JavaScript with smooth animations.</p>
-                        <div class="project-tags">
-                            <span class="tag">JavaScript</span>
-                            <span class="tag">HTML</span>
-                            <span class="tag">CSS</span>
-                            <span class="tag">LocalStorage</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="#" class="project-link">View Project</a>
-                            <a href="#" class="project-link">Source Code</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 3 -->
-                <div class="project-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="project-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                        <i class="fas fa-calculator"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>Data Analytics Dashboard</h3>
-                        <p>Interactive dashboard for data visualization and analysis. Created using Python for backend processing and interactive charts with HTML/CSS frontend.</p>
-                        <div class="project-tags">
-                            <span class="tag">Python</span>
-                            <span class="tag">React</span>
-                            <span class="tag">Charts</span>
-                            <span class="tag">Data</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="#" class="project-link">View Project</a>
-                            <a href="#" class="project-link">Source Code</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 4 -->
-                <div class="project-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="project-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-                        <i class="fas fa-image"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>Image Gallery</h3>
-                        <p>Beautiful responsive photo gallery with lightbox functionality, smooth animations and filtering capabilities.</p>
-                        <div class="project-tags">
-                            <span class="tag">HTML</span>
-                            <span class="tag">CSS</span>
-                            <span class="tag">JavaScript</span>
-                            <span class="tag">Bootstrap</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="#" class="project-link">View Project</a>
-                            <a href="#" class="project-link">Source Code</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 5 -->
-                <div class="project-card" data-aos="fade-up" data-aos-delay="400">
-                    <div class="project-image" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
-                        <i class="fas fa-weather-cloud"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>Weather App</h3>
-                        <p>Real-time weather application using API integration with beautiful UI and location-based weather updates.</p>
-                        <div class="project-tags">
-                            <span class="tag">JavaScript</span>
-                            <span class="tag">API</span>
-                            <span class="tag">CSS</span>
-                            <span class="tag">Vite</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="#" class="project-link">View Project</a>
-                            <a href="#" class="project-link">Source Code</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 6 -->
-                <div class="project-card" data-aos="fade-up" data-aos-delay="500">
-                    <div class="project-image" style="background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);">
-                        <i class="fas fa-cube"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>3D Web Experience</h3>
-                        <p>Interactive 3D web experience built with Three.js featuring rotating geometric shapes and particle effects.</p>
-                        <div class="project-tags">
-                            <span class="tag">Three.js</span>
-                            <span class="tag">JavaScript</span>
-                            <span class="tag">WebGL</span>
-                            <span class="tag">Vite</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="#" class="project-link">View Project</a>
-                            <a href="#" class="project-link">Source Code</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">Get In Touch</h2>
-            
-            <div class="contact-content">
-                <div class="contact-info" data-aos="fade-right">
-                    <h3>Let's Connect</h3>
-                    <p>I'm always interested in hearing about new projects and opportunities. Feel free to reach out!</p>
-                    
-                    <div class="contact-items">
-                        <div class="contact-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <h4>Email</h4>
-                                <p>poonama.yadav@email.com</p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <h4>Phone</h4>
-                                <p>+91 (Your Number)</p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <h4>Location</h4>
-                                <p>Your City, Country</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="social-links">
-                        <a href="#" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
-                        <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                        <a href="#" class="social-link" title="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-
-                <form class="contact-form" data-aos="fade-left">
+                <div class="modal-body">
                     <div class="form-group">
-                        <input type="text" placeholder="Your Name" required>
+                        <label>Task Name</label>
+                        <input type="text" id="modalTaskName" class="form-input" placeholder="Enter task name" title="Task Name">
                     </div>
                     <div class="form-group">
-                        <input type="email" placeholder="Your Email" required>
+                        <label>Description</label>
+                        <textarea id="modalTaskDesc" class="form-input" placeholder="Enter task description" title="Task Description"></textarea>
                     </div>
                     <div class="form-group">
-                        <input type="text" placeholder="Subject" required>
+                        <label>Category</label>
+                        <select id="modalCategory" class="form-input" title="Category">
+                            <option value="Personal">Personal</option>
+                            <option value="Work">Work</option>
+                            <option value="Study">Study</option>
+                            <option value="Health">Health</option>
+                            <option value="Shopping">Shopping</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <textarea placeholder="Your Message" rows="5" required></textarea>
+                        <label>Priority</label>
+                        <select id="modalPriority" class="form-input" title="Priority">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Send Message</button>
-                </form>
+                    <div class="form-group">
+                        <label>Deadline</label>
+                        <input type="date" id="modalDeadline" class="form-input" title="Deadline" placeholder="Select deadline">
+                    </div>
+                    <div class="form-group">
+                        <label>Subtasks</label>
+                        <div id="subtasksList"></div>
+                        <input type="text" id="newSubtask" placeholder="Add subtask..." class="form-input">
+                        <button id="addSubtaskBtn" class="form-btn">Add Subtask</button>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalReminder">Reminders</label>
+                        <select id="modalReminder" class="form-input" aria-label="Reminder settings">
+                            <option value="none">No Reminder</option>
+                            <option value="5min">5 minutes before</option>
+                            <option value="15min">15 minutes before</option>
+                            <option value="1hour">1 hour before</option>
+                            <option value="1day">1 day before</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveTaskBtn" class="form-btn primary">Save Task</button>
+                    <button id="closeModalBtn" class="form-btn">Cancel</button>
+                </div>
             </div>
         </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2024 Poonama Yadav. All rights reserved.</p>
-            <p>Built with <i class="fas fa-heart"></i> using HTML, CSS, JavaScript & Three.js</p>
+        <!-- Modal for Statistics -->
+        <div id="statsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>📊 Statistics & Goals</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body stats-modal">
+                    <div class="stat-item">
+                        <h3>Total Tasks</h3>
+                        <p id="statTotal">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>Completed</h3>
+                        <p id="statCompleted">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>Remaining</h3>
+                        <p id="statRemaining">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>Completion Rate</h3>
+                        <p id="statRate">0%</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>By Category</h3>
+                        <div id="categoryStats"></div>
+                    </div>
+                    <div class="stat-item">
+                        <h3>By Priority</h3>
+                        <div id="priorityStats"></div>
+                    </div>
+                    <div class="goal-section">
+                        <h3>🎯 Daily Goal</h3>
+                        <div class="goal-input">
+                            <input type="number" id="goalInput" placeholder="Tasks to complete today" min="1">
+                            <button id="setGoalBtn" class="form-btn primary">Set Goal</button>
+                        </div>
+                        <p id="goalStatus"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="closeStatsBtn" class="form-btn">Close</button>
+                </div>
+            </div>
         </div>
-    </footer>
 
-    <!-- Three.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- AOS Library -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <!-- Main Script -->
-    <script src="./main.js"></script>
+        <!-- Notification -->
+        <div id="notification" class="notification"></div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
+  
+
+
+   
+         
+            

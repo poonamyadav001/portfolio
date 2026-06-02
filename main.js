@@ -1,514 +1,614 @@
-// =====================
-// THREE.JS HERO SECTION
-// =====================
-function initThreeJS() {
-    const canvas = document.getElementById('heroCanvas');
-    if (!canvas) return;
+// Task Manager Application - Complete Feature Set
+class TaskManager {
+    constructor() {
+        this.tasks = [];
+        this.dailyGoal = 0;
+        this.currentFilter = 'all';
+        this.currentCategory = 'all';
+        this.currentPriority = 'all';
+        this.searchQuery = '';
+        this.darkMode = localStorage.getItem('darkMode') === 'true';
+        this.draggedTask = null;
 
-    try {
-        // Scene setup
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-        renderer.setClearColor(0x000000, 0);
-        canvas.appendChild(renderer.domElement);
-
-        camera.position.z = 5;
-
-        // Create particles
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.1,
-            color: 0x667eea,
-            sizeAttenuation: true,
-        });
-
-        const particlesCount = 300;
-        const posArray = new Float32Array(particlesCount * 3);
-
-        for (let i = 0; i < particlesCount * 3; i += 3) {
-            posArray[i] = (Math.random() - 0.5) * 10;
-            posArray[i + 1] = (Math.random() - 0.5) * 10;
-            posArray[i + 2] = (Math.random() - 0.5) * 10;
-        }
-
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particles);
-
-        // Create animated cube
-        const cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
-        const cubeMaterial = new THREE.MeshPhongMaterial({
-            color: 0x764ba2,
-            emissive: 0x667eea,
-            shininess: 100,
-        });
-        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-        scene.add(cube);
-
-        // Add lights
-        const light1 = new THREE.PointLight(0x667eea, 1, 100);
-        light1.position.set(5, 5, 5);
-        scene.add(light1);
-
-        const light2 = new THREE.PointLight(0xf093fb, 1, 100);
-        light2.position.set(-5, -5, 5);
-        scene.add(light2);
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        scene.add(ambientLight);
-
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Rotate cube
-            cube.rotation.x += 0.005;
-            cube.rotation.y += 0.007;
-            cube.rotation.z += 0.003;
-
-            // Move particles
-            particles.rotation.x += 0.0001;
-            particles.rotation.y += 0.0002;
-
-            renderer.render(scene, camera);
-        }
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = canvas.clientWidth / canvas.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-        });
-
-        animate();
-    } catch (e) {
-        console.warn('Three.js initialization skipped:', e.message);
+        this.initializeApp();
     }
-}
 
-// =====================
-// NAVIGATION & SCROLL
-// =====================
-const hamburger = document.querySelector('.hamburger');
-const navMenu = document.querySelector('.nav-menu');
-const navLinks = document.querySelectorAll('.nav-link');
+    initializeApp() {
+        this.loadTasks();
+        this.setupEventListeners();
+        this.applyDarkMode();
+        this.render();
+    }
 
-if (hamburger) {
-    hamburger.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-    });
+    // ============ LOCAL STORAGE ============
+    loadTasks() {
+        const stored = localStorage.getItem('tasks');
+        this.tasks = stored ? JSON.parse(stored) : [];
+        this.dailyGoal = parseInt(localStorage.getItem('dailyGoal')) || 0;
+    }
 
-    navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            navMenu.classList.remove('active');
-        });
-    });
-}
+    saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(this.tasks));
+        localStorage.setItem('dailyGoal', this.dailyGoal);
+    }
 
-// Active nav link on scroll
-window.addEventListener('scroll', () => {
-    let current = '';
-    const sections = document.querySelectorAll('section');
-
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        if (pageYOffset >= sectionTop - 200) {
-            current = section.getAttribute('id');
+    // ============ TASK OPERATIONS ============
+    addTask(name, category, priority, deadline, recurring) {
+        if (!name.trim()) {
+            this.showNotification('Please enter a task', 'error');
+            return;
         }
-    });
 
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href').slice(1) === current) {
-            link.classList.add('active');
+        const task = {
+            id: Date.now(),
+            name,
+            category,
+            priority,
+            deadline,
+            recurring,
+            completed: false,
+            pinned: false,
+            createdAt: new Date().toISOString(),
+            completedAt: null,
+            subtasks: [],
+            reminder: 'none',
+            notes: ''
+        };
+
+        this.tasks.unshift(task);
+        this.saveTasks();
+        this.render();
+        this.showNotification('Task added successfully ✨');
+    }
+
+    updateTask(id, updates) {
+        const task = this.tasks.find(t => t.id === id);
+        if (task) {
+            Object.assign(task, updates);
+            if (updates.completed && !task.completedAt) {
+                task.completedAt = new Date().toISOString();
+            }
+            this.saveTasks();
+            this.render();
         }
-    });
-});
+    }
 
-// =====================
-// SCROLL ANIMATIONS
-// =====================
-function animateOnScroll() {
-    const elements = document.querySelectorAll('[data-aos]');
+    deleteTask(id) {
+        this.tasks = this.tasks.filter(t => t.id !== id);
+        this.saveTasks();
+        this.render();
+        this.showNotification('Task deleted');
+    }
 
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('aos-animate');
+    toggleTaskComplete(id) {
+        const task = this.tasks.find(t => t.id === id);
+        if (task) {
+            task.completed = !task.completed;
+            if (task.completed) {
+                task.completedAt = new Date().toISOString();
             }
-        });
-    }, observerOptions);
+            this.saveTasks();
+            this.render();
+        }
+    }
 
-    elements.forEach(element => {
-        observer.observe(element);
-    });
-}
-
-// =====================
-// PROGRESS BAR ANIMATION
-// =====================
-function animateProgressBars() {
-    const progressBars = document.querySelectorAll('.progress-fill');
-
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.5
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
-                const targetWidth = entry.target.style.width;
-                entry.target.style.width = '0';
-                setTimeout(() => {
-                    entry.target.style.width = targetWidth;
-                }, 100);
-                entry.target.classList.add('animated');
+    togglePinned(id) {
+        const task = this.tasks.find(t => t.id === id);
+        if (task) {
+            task.pinned = !task.pinned;
+            if (task.pinned) {
+                this.tasks.splice(this.tasks.indexOf(task), 1);
+                this.tasks.unshift(task);
             }
-        });
-    }, observerOptions);
+            this.saveTasks();
+            this.render();
+        }
+    }
 
-    progressBars.forEach(bar => {
-        observer.observe(bar);
-    });
-}
+    addSubtask(taskId, subtaskText) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (task) {
+            const subtask = {
+                id: Date.now(),
+                text: subtaskText,
+                completed: false
+            };
+            task.subtasks.push(subtask);
+            this.saveTasks();
+            this.render();
+        }
+    }
 
-// =====================
-// FORM HANDLING
-// =====================
-const contactForm = document.querySelector('.contact-form');
-
-if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        // Show success message
-        const btn = contactForm.querySelector('.btn-primary');
-        const originalText = btn.textContent;
-        btn.textContent = 'Message Sent!';
-        btn.disabled = true;
-
-        // Reset after 3 seconds
-        setTimeout(() => {
-            btn.textContent = originalText;
-            btn.disabled = false;
-            contactForm.reset();
-        }, 3000);
-    });
-}
-
-// =====================
-// SMOOTH SCROLL BEHAVIOR
-// =====================
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        const href = this.getAttribute('href');
-        if (href !== '#') {
-            e.preventDefault();
-            const element = document.querySelector(href);
-            if (element) {
-                element.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+    toggleSubtask(taskId, subtaskId) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (task) {
+            const subtask = task.subtasks.find(s => s.id === subtaskId);
+            if (subtask) {
+                subtask.completed = !subtask.completed;
+                this.saveTasks();
+                this.render();
             }
         }
-    });
-});
+    }
 
-// =====================
-// PARALLAX EFFECT
-// =====================
-function parallaxEffect() {
-    window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset;
-        const parallaxElements = document.querySelectorAll('.hero, .about, .projects');
+    deleteSubtask(taskId, subtaskId) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (task) {
+            task.subtasks = task.subtasks.filter(s => s.id !== subtaskId);
+            this.saveTasks();
+            this.render();
+        }
+    }
 
-        parallaxElements.forEach((element, index) => {
-            if (index % 2 === 0) {
-                element.style.backgroundPosition = `0 ${scrolled * 0.5}px`;
-            }
+    // ============ FILTERING & SEARCHING ============
+    getFilteredTasks() {
+        let filtered = this.tasks;
+
+        // Filter by status
+        if (this.currentFilter === 'active') {
+            filtered = filtered.filter(t => !t.completed);
+        } else if (this.currentFilter === 'completed') {
+            filtered = filtered.filter(t => t.completed);
+        } else if (this.currentFilter === 'pinned') {
+            filtered = filtered.filter(t => t.pinned);
+        }
+
+        // Filter by category
+        if (this.currentCategory !== 'all') {
+            filtered = filtered.filter(t => t.category === this.currentCategory);
+        }
+
+        // Filter by priority
+        if (this.currentPriority !== 'all') {
+            filtered = filtered.filter(t => t.priority === this.currentPriority);
+        }
+
+        // Search
+        if (this.searchQuery) {
+            const query = this.searchQuery.toLowerCase();
+            filtered = filtered.filter(t => 
+                t.name.toLowerCase().includes(query) || 
+                t.notes.toLowerCase().includes(query)
+            );
+        }
+
+        // Sort: pinned first, then by priority
+        filtered.sort((a, b) => {
+            if (a.pinned !== b.pinned) return b.pinned - a.pinned;
+            const priorityOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
+            return priorityOrder[a.priority] - priorityOrder[b.priority];
         });
-    });
-}
 
-// =====================
-// MOUSE GRADIENT FOLLOW
-// =====================
-function mouseGradientFollow() {
-    const gradientElements = document.querySelectorAll('.gradient-text, .section-title');
+        return filtered;
+    }
 
-    document.addEventListener('mousemove', (e) => {
-        const x = e.clientX;
-        const y = e.clientY;
+    // ============ STATISTICS ============
+    getStatistics() {
+        const total = this.tasks.length;
+        const completed = this.tasks.filter(t => t.completed).length;
+        const rate = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-        gradientElements.forEach(element => {
-            const rect = element.getBoundingClientRect();
-            const elementX = rect.left + rect.width / 2;
-            const elementY = rect.top + rect.height / 2;
+        const byCategory = {};
+        const byPriority = {};
 
-            const angle = Math.atan2(y - elementY, x - elementX) * (180 / Math.PI);
-            element.style.setProperty('--mouse-angle', `${angle}deg`);
+        this.tasks.forEach(t => {
+            byCategory[t.category] = (byCategory[t.category] || 0) + 1;
+            byPriority[t.priority] = (byPriority[t.priority] || 0) + 1;
         });
-    });
-}
 
-// =====================
-// INTERSECTION OBSERVER FOR CARD ANIMATIONS
-// =====================
-function setupCardAnimations() {
-    const cards = document.querySelectorAll('.project-card, .skill-category, .about-text');
+        return {
+            total,
+            completed,
+            remaining: total - completed,
+            rate,
+            byCategory,
+            byPriority
+        };
+    }
 
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-    };
+    getProgressPercentage() {
+        if (this.tasks.length === 0) return 0;
+        const completed = this.tasks.filter(t => t.completed).length;
+        return Math.round((completed / this.tasks.length) * 100);
+    }
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
+    // ============ DARK MODE ============
+    toggleDarkMode() {
+        this.darkMode = !this.darkMode;
+        localStorage.setItem('darkMode', this.darkMode);
+        this.applyDarkMode();
+    }
 
-    cards.forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(card);
-    });
-}
-
-// =====================
-// LAZY LOADING
-// =====================
-function lazyLoadImages() {
-    const images = document.querySelectorAll('img[data-src]');
-
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                img.removeAttribute('data-src');
-                observer.unobserve(img);
-            }
-        });
-    });
-
-    images.forEach(img => imageObserver.observe(img));
-}
-
-// =====================
-// SCROLL TO TOP BUTTON
-// =====================
-function setupScrollToTop() {
-    const scrollButton = document.createElement('button');
-    scrollButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
-    scrollButton.className = 'scroll-to-top';
-    scrollButton.style.cssText = `
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        cursor: pointer;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 999;
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        transition: all 0.3s ease;
-        font-size: 1.2rem;
-    `;
-
-    document.body.appendChild(scrollButton);
-
-    window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-            scrollButton.style.display = 'flex';
+    applyDarkMode() {
+        if (this.darkMode) {
+            document.documentElement.style.colorScheme = 'dark';
+            document.body.classList.add('dark-mode');
         } else {
-            scrollButton.style.display = 'none';
-        }
-    });
-
-    scrollButton.addEventListener('click', () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
-
-    scrollButton.addEventListener('mouseover', () => {
-        scrollButton.style.transform = 'scale(1.1)';
-    });
-
-    scrollButton.addEventListener('mouseout', () => {
-        scrollButton.style.transform = 'scale(1)';
-    });
-}
-
-// =====================
-// TYPING ANIMATION
-// =====================
-function typeWriterEffect() {
-    const title = document.querySelector('.hero-title');
-    if (!title) return;
-
-    const text = title.textContent;
-    title.textContent = '';
-
-    let index = 0;
-    const speed = 50;
-
-    function type() {
-        if (index < text.length) {
-            title.textContent += text.charAt(index);
-            index++;
-            setTimeout(type, speed);
+            document.documentElement.style.colorScheme = 'light';
+            document.body.classList.remove('dark-mode');
         }
     }
 
-    // Start typing after a small delay
-    setTimeout(type, 500);
-}
+    // ============ NOTIFICATIONS ============
+    showNotification(message, type = 'success') {
+        const notif = document.getElementById('notification');
+        notif.textContent = message;
+        notif.className = `notification show`;
+        
+        if (type === 'error') {
+            notif.style.background = 'var(--danger-color)';
+        } else {
+            notif.style.background = 'var(--success-color)';
+        }
 
-// =====================
-// PARTICLE EFFECT ON SCROLL
-// =====================
-function createParticleEffect() {
-    window.addEventListener('click', (e) => {
-        const particle = document.createElement('div');
-        particle.style.cssText = `
-            position: fixed;
-            left: ${e.clientX}px;
-            top: ${e.clientY}px;
-            width: 10px;
-            height: 10px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 10000;
-            animation: particleFloat 1s ease-out forwards;
-        `;
+        setTimeout(() => {
+            notif.classList.remove('show');
+        }, 3000);
+    }
 
-        document.body.appendChild(particle);
+    // ============ DATE UTILITIES ============
+    getDeadlineStatus(deadline) {
+        if (!deadline) return null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const deadlineDate = new Date(deadline);
+        deadlineDate.setHours(0, 0, 0, 0);
+        const diffTime = deadlineDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        setTimeout(() => particle.remove(), 1000);
-    });
+        if (diffDays < 0) return 'overdue';
+        if (diffDays === 0) return 'today';
+        if (diffDays <= 3) return 'upcoming';
+        return 'safe';
+    }
 
-    // Add animation
-    if (!document.querySelector('style[data-particles]')) {
-        const style = document.createElement('style');
-        style.setAttribute('data-particles', 'true');
-        style.textContent = `
-            @keyframes particleFloat {
-                to {
-                    transform: translate(${Math.random() * 100 - 50}px, -100px);
-                    opacity: 0;
+    formatDeadline(deadline) {
+        if (!deadline) return '';
+        const date = new Date(deadline);
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        today.setHours(0, 0, 0, 0);
+        tomorrow.setHours(0, 0, 0, 0);
+        date.setHours(0, 0, 0, 0);
+
+        if (date.getTime() === today.getTime()) return '📅 Today';
+        if (date.getTime() === tomorrow.getTime()) return '📅 Tomorrow';
+        return '📅 ' + date.toLocaleDateString();
+    }
+
+    // ============ RENDERING ============
+    render() {
+        this.renderTasks();
+        this.updateProgress();
+        this.updateEmptyState();
+    }
+
+    renderTasks() {
+        const taskList = document.getElementById('taskList');
+        const filtered = this.getFilteredTasks();
+
+        taskList.innerHTML = filtered.map(task => this.createTaskElement(task)).join('');
+        
+        // Add event listeners to rendered tasks
+        taskList.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                this.toggleTaskComplete(parseInt(e.target.dataset.taskId));
+            });
+        });
+
+        taskList.querySelectorAll('.task-pin').forEach(pin => {
+            pin.addEventListener('click', (e) => {
+                this.togglePinned(parseInt(e.target.dataset.taskId));
+            });
+        });
+
+        taskList.querySelectorAll('.task-edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.openTaskModal(parseInt(e.target.dataset.taskId));
+            });
+        });
+
+        taskList.querySelectorAll('.task-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (confirm('Delete this task?')) {
+                    this.deleteTask(parseInt(e.target.dataset.taskId));
                 }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-}
+            });
+        });
 
-// =====================
-// INITIALIZE ON LOAD
-// =====================
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize AOS
-    if (typeof AOS !== 'undefined') {
-        AOS.init({
-            offset: 100,
-            duration: 800,
-            easing: 'ease-in-out',
-            once: false,
-            mirror: true
+        // Drag and drop
+        taskList.querySelectorAll('.task-item').forEach(item => {
+            item.draggable = true;
+            item.addEventListener('dragstart', (e) => this.draggedTask = parseInt(e.currentTarget.dataset.taskId));
+            item.addEventListener('dragover', (e) => e.preventDefault());
+            item.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const targetId = parseInt(e.currentTarget.dataset.taskId);
+                if (this.draggedTask !== targetId) {
+                    const draggedIndex = this.tasks.findIndex(t => t.id === this.draggedTask);
+                    const targetIndex = this.tasks.findIndex(t => t.id === targetId);
+                    [this.tasks[draggedIndex], this.tasks[targetIndex]] = 
+                    [this.tasks[targetIndex], this.tasks[draggedIndex]];
+                    this.saveTasks();
+                    this.render();
+                }
+            });
         });
     }
 
-    initThreeJS();
-    animateOnScroll();
-    animateProgressBars();
-    setupCardAnimations();
-    lazyLoadImages();
-    setupScrollToTop();
-    parallaxEffect();
-    mouseGradientFollow();
-    typeWriterEffect();
-    createParticleEffect();
+    createTaskElement(task) {
+        const deadline = this.formatDeadline(task.deadline);
+        const deadlineStatus = this.getDeadlineStatus(task.deadline);
+        const subtaskHTML = task.subtasks.length > 0 ? `
+            <div class="subtasks">
+                ${task.subtasks.map(st => `
+                    <div class="subtask-item">
+                        <input type="checkbox" ${st.completed ? 'checked' : ''} 
+                            data-subtask-id="${st.id}" class="subtask-checkbox"
+                            data-task-id="${task.id}">
+                        <span>${st.text}</span>
+                    </div>
+                `).join('')}
+            </div>
+        ` : '';
 
-    // Add smooth scroll behavior
-    document.documentElement.style.scrollBehavior = 'smooth';
-});
-
-// =====================
-// WINDOW LOAD EVENT
-// =====================
-window.addEventListener('load', () => {
-    // Refresh AOS animations
-    if (typeof AOS !== 'undefined') {
-        AOS.refresh();
+        return `
+            <li class="task-item ${task.completed ? 'completed' : ''} ${task.pinned ? 'pinned' : ''}" 
+                data-task-id="${task.id}">
+                <div class="task-content">
+                    <div class="task-header">
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
+                            data-task-id="${task.id}">
+                        <span class="task-pin ${task.pinned ? 'pinned' : ''}" data-task-id="${task.id}">
+                            ${task.pinned ? '📌' : '☐'}
+                        </span>
+                        <span class="task-text">${task.name}</span>
+                        <span class="priority-badge ${task.priority.toLowerCase()}">
+                            ${task.priority}
+                        </span>
+                    </div>
+                    <div class="task-meta">
+                        <span class="category-badge ${task.category}">${task.category}</span>
+                        ${deadline ? `<span class="meta-item deadline-item ${deadlineStatus || ''}">${deadline}</span>` : ''}
+                        ${task.recurring !== 'none' ? `<span class="meta-item">🔄 ${task.recurring}</span>` : ''}
+                    </div>
+                    ${subtaskHTML}
+                </div>
+                <div class="task-actions">
+                    <button class="task-action-btn task-edit" data-task-id="${task.id}" title="Edit">✏️</button>
+                    <button class="task-action-btn task-delete" data-task-id="${task.id}" title="Delete">🗑️</button>
+                </div>
+            </li>
+        `;
     }
-});
 
-// =====================
-// SMOOTH SCROLL POLYFILL FOR OLDER BROWSERS
-// =====================
-if (!window.requestAnimationFrame) {
-    window.requestAnimationFrame = function(callback) {
-        return setTimeout(callback, 1000 / 60);
-    };
+    updateProgress() {
+        const percentage = this.getProgressPercentage();
+        document.getElementById('progressFill').style.width = percentage + '%';
+        document.getElementById('progressPercentage').textContent = percentage + '%';
+    }
+
+    updateEmptyState() {
+        const filtered = this.getFilteredTasks();
+        const emptyState = document.getElementById('emptyState');
+        emptyState.style.display = filtered.length === 0 ? 'block' : 'none';
+    }
+
+    // ============ MODALS ============
+    openTaskModal(taskId = null) {
+        const modal = document.getElementById('taskModal');
+        const task = taskId ? this.tasks.find(t => t.id === taskId) : null;
+
+        if (task) {
+            document.getElementById('modalTaskName').value = task.name;
+            document.getElementById('modalTaskDesc').value = task.notes;
+            document.getElementById('modalCategory').value = task.category;
+            document.getElementById('modalPriority').value = task.priority;
+            document.getElementById('modalDeadline').value = task.deadline || '';
+            document.getElementById('modalReminder').value = task.reminder;
+
+            const subtasksList = document.getElementById('subtasksList');
+            subtasksList.innerHTML = task.subtasks.map(st => `
+                <div class="subtask-item" style="margin-bottom: 8px;">
+                    <input type="checkbox" ${st.completed ? 'checked' : ''} 
+                        class="subtask-toggle" data-subtask-id="${st.id}">
+                    <span>${st.text}</span>
+                    <button class="task-action-btn" onclick="taskManager.deleteSubtask(${task.id}, ${st.id})" style="margin-left: auto;">🗑️</button>
+                </div>
+            `).join('');
+
+            document.getElementById('saveTaskBtn').onclick = () => {
+                const updates = {
+                    name: document.getElementById('modalTaskName').value,
+                    notes: document.getElementById('modalTaskDesc').value,
+                    category: document.getElementById('modalCategory').value,
+                    priority: document.getElementById('modalPriority').value,
+                    deadline: document.getElementById('modalDeadline').value,
+                    reminder: document.getElementById('modalReminder').value
+                };
+                this.updateTask(taskId, updates);
+                this.closeModal('taskModal');
+                this.showNotification('Task updated ✨');
+            };
+        } else {
+            document.getElementById('modalTaskName').value = '';
+            document.getElementById('modalTaskDesc').value = '';
+            document.getElementById('modalCategory').value = 'Personal';
+            document.getElementById('modalPriority').value = 'Medium';
+            document.getElementById('modalDeadline').value = '';
+            document.getElementById('modalReminder').value = 'none';
+            document.getElementById('subtasksList').innerHTML = '';
+        }
+
+        modal.classList.add('active');
+    }
+
+    closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
+
+    openStatsModal() {
+        const stats = this.getStatistics();
+        const modal = document.getElementById('statsModal');
+
+        document.getElementById('statTotal').textContent = stats.total;
+        document.getElementById('statCompleted').textContent = stats.completed;
+        document.getElementById('statRemaining').textContent = stats.remaining;
+        document.getElementById('statRate').textContent = stats.rate + '%';
+
+        const categoryHTML = Object.entries(stats.byCategory)
+            .map(([cat, count]) => `<div>${cat}: ${count}</div>`)
+            .join('');
+        document.getElementById('categoryStats').innerHTML = categoryHTML;
+
+        const priorityHTML = Object.entries(stats.byPriority)
+            .map(([pri, count]) => `<div>${pri}: ${count}</div>`)
+            .join('');
+        document.getElementById('priorityStats').innerHTML = priorityHTML;
+
+        const completedToday = this.tasks.filter(t => {
+            if (!t.completedAt) return false;
+            const completed = new Date(t.completedAt);
+            const today = new Date();
+            return completed.toDateString() === today.toDateString();
+        }).length;
+
+        const goal = this.dailyGoal > 0 ? `Goal: ${this.dailyGoal} | Completed Today: ${completedToday}` : 'Set a daily goal';
+        document.getElementById('goalStatus').textContent = goal;
+
+        document.getElementById('setGoalBtn').onclick = () => {
+            const value = parseInt(document.getElementById('goalInput').value);
+            if (value > 0) {
+                this.dailyGoal = value;
+                this.saveTasks();
+                this.openStatsModal();
+                this.showNotification('Daily goal set! 🎯');
+            }
+        };
+
+        modal.classList.add('active');
+    }
+
+    // ============ EVENT LISTENERS ============
+    setupEventListeners() {
+        // Add task
+        document.getElementById('addBtn').addEventListener('click', () => {
+            const name = document.getElementById('taskInput').value;
+            const category = document.getElementById('categorySelect').value;
+            const priority = document.getElementById('prioritySelect').value;
+            const deadline = document.getElementById('deadlineInput').value;
+            const recurring = document.getElementById('recurringSelect').value;
+
+            this.addTask(name, category, priority, deadline, recurring);
+            document.getElementById('taskInput').value = '';
+            document.getElementById('deadlineInput').value = '';
+        });
+
+        // Theme toggle
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            this.toggleDarkMode();
+            document.getElementById('themeToggle').textContent = this.darkMode ? '☀️' : '🌙';
+        });
+
+        // Stats button
+        document.getElementById('statsBtn').addEventListener('click', () => {
+            this.openStatsModal();
+        });
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.currentFilter = e.target.dataset.filter;
+                this.render();
+            });
+        });
+
+        // Category buttons
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.currentCategory = e.target.dataset.category;
+                this.render();
+            });
+        });
+
+        // Priority buttons
+        document.querySelectorAll('.priority-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.currentPriority = e.target.dataset.priority;
+                this.render();
+            });
+        });
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            this.searchQuery = e.target.value;
+            this.render();
+        });
+
+        // Modal controls
+        document.getElementById('addTaskBtn').addEventListener('click', () => {
+            this.openTaskModal();
+        });
+
+        document.querySelector('.close-btn').addEventListener('click', () => {
+            this.closeModal('taskModal');
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            this.closeModal('taskModal');
+        });
+
+        document.getElementById('closeStatsBtn').addEventListener('click', () => {
+            this.closeModal('statsModal');
+        });
+
+        document.querySelector('#statsModal .close-btn').addEventListener('click', () => {
+            this.closeModal('statsModal');
+        });
+
+        // Add subtask
+        document.getElementById('addSubtaskBtn').addEventListener('click', () => {
+            const input = document.getElementById('newSubtask');
+            if (input.value.trim()) {
+                // This will be handled in modal context
+                input.value = '';
+            }
+        });
+
+        // Close modal on outside click
+        document.getElementById('taskModal').addEventListener('click', (e) => {
+            if (e.target.id === 'taskModal') {
+                this.closeModal('taskModal');
+            }
+        });
+
+        document.getElementById('statsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'statsModal') {
+                this.closeModal('statsModal');
+            }
+        });
+
+        // Goal button
+        document.getElementById('goalBtn').addEventListener('click', () => {
+            this.openStatsModal();
+        });}
+
+    }
+
+// Initialize the app
+let taskManager;
+if (typeof document !== 'undefined' && typeof window !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        taskManager = new TaskManager();
+    });
+} else {
+    console.warn('TaskManager script loaded outside a browser environment. Initialization is skipped.');
 }
-
-// =====================
-// KEYBOARD SHORTCUTS
-// =====================
-document.addEventListener('keydown', (e) => {
-    // Press 'h' to go to home
-    if (e.key === 'h' || e.key === 'H') {
-        const homeEl = document.querySelector('#home');
-        if (homeEl) homeEl.scrollIntoView({ behavior: 'smooth' });
-    }
-    // Press 'a' to go to about
-    if (e.key === 'a' || e.key === 'A') {
-        const aboutEl = document.querySelector('#about');
-        if (aboutEl) aboutEl.scrollIntoView({ behavior: 'smooth' });
-    }
-    // Press 's' to go to skills
-    if (e.key === 's' || e.key === 'S') {
-        const skillsEl = document.querySelector('#skills');
-        if (skillsEl) skillsEl.scrollIntoView({ behavior: 'smooth' });
-    }
-    // Press 'p' to go to projects
-    if (e.key === 'p' || e.key === 'P') {
-        const projectsEl = document.querySelector('#projects');
-        if (projectsEl) projectsEl.scrollIntoView({ behavior: 'smooth' });
-    }
-    // Press 'c' to go to contact
-    if (e.key === 'c' || e.key === 'C') {
-        const contactEl = document.querySelector('#contact');
-        if (contactEl) contactEl.scrollIntoView({ behavior: 'smooth' });
-    }
-});
-
-console.log('%c🚀 Poonama Yadav Portfolio Loaded!', 'color: #667eea; font-size: 16px; font-weight: bold;');
-console.log('%cKeyboard Shortcuts: H-Home, A-About, S-Skills, P-Projects, C-Contact', 'color: #764ba2');
