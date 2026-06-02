@@ -1,127 +1,280 @@
-# Poonama Yadav - Professional Portfolio
+# 📝 Task Master - Advanced Task Management Application
 
-A modern, advanced portfolio website built with HTML, CSS, JavaScript, and Three.js featuring stunning scroll animations, gradient effects, and 3D elements.
+A modern, feature-rich task management application built with vanilla JavaScript, featuring task categorization, priority levels, subtasks, dark mode, and comprehensive statistics.
 
-## 🌟 Features
+## ✨ Features
 
-### ✨ Visual Effects
-- **3D Hero Section**: Interactive Three.js scene with animated particles and rotating cube
-- **Gradient Effects**: Beautiful gradient backgrounds and text animations throughout
-- **Smooth Scroll Animations**: AOS (Animate On Scroll) library for smooth page transitions
-- **Parallax Effects**: Dynamic parallax scrolling for visual depth
-- **Particle Effects**: Click-triggered particle animations
-- **Interactive Cards**: Hover effects on project and skill cards
+### 📋 Task Management
+- **Add & Manage Tasks**: Create tasks with name, description, category, priority, and deadline
+- **Task Filtering**: Filter by status (All, Active, Completed, Pinned)
+- **Categories**: Organize tasks into 6 categories - Study, Work, Personal, Health, Shopping
+- **Priority Levels**: Set task priority as High, Medium, or Low with color-coded badges
+- **Subtasks**: Add multiple subtasks to break down complex tasks
+- **Pin Tasks**: Pin important tasks to the top of the list
+- **Search**: Real-time search across task names and descriptions
+- **Deadline Tracking**: Set deadlines and get visual status indicators (Overdue, Today, Upcoming)
+- **Recurring Tasks**: Set tasks to repeat daily, weekly, or monthly
+- **Reminders**: Configure reminders (5 min, 15 min, 1 hour, 1 day before)
 
-### 📱 Responsive Design
-- Fully responsive design for all devices
-- Mobile-first approach
-- Hamburger menu for mobile navigation
-- Touch-friendly interface
+### 🌙 Dark Mode
+- **Toggle Dark Mode**: Easy one-click dark mode switching
+- **Local Storage**: Dark mode preference persists across sessions
+- **Full Coverage**: All UI elements fully styled for dark mode
 
-### 🎨 Design Features
-- Professional color scheme with gradients
-- Smooth transitions and hover effects
-- Progress bars for skill visualization
-- Beautiful card designs for projects and skills
-- Sticky navigation bar with smooth scrolling
+### 📊 Statistics & Analytics
+- **Progress Dashboard**: Visual progress bar showing completion percentage
+- **Task Statistics**: Track total, completed, and remaining tasks
+- **Completion Rate**: View overall completion percentage
+- **Category Breakdown**: See task count by category
+- **Priority Distribution**: View task distribution by priority
+- **Daily Goals**: Set and track daily task completion goals
 
-### 🛠️ Technology Stack
+### 🎨 User Interface
+- **Modern Design**: Clean, intuitive interface with smooth animations
+- **Responsive Layout**: Fully responsive for desktop, tablet, and mobile
+- **Sidebar Navigation**: Easy access to filters, categories, and priorities
+- **Modal Dialogs**: Edit tasks and view statistics in elegant modals
+- **Progress Indicators**: Visual progress bar for completion tracking
+- **Notifications**: Toast notifications for user actions
+
+### 💾 Data Persistence
+- **Local Storage**: All tasks and preferences saved to browser storage
+- **Auto-Save**: Changes automatically saved without manual action
+- **Data Sync**: Preferences (dark mode, goals) persist across sessions
+
+## 🛠️ Technology Stack
+
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript (ES6+)
 - **Build Tool**: Vite
-- **3D Graphics**: Three.js
-- **Animations**: AOS, CSS3 Animations
-- **Icons**: Font Awesome
-- **Framework**: Bootstrap (included via CDN)
+- **State Management**: Class-based JavaScript with localStorage
+- **Styling**: Custom CSS with CSS variables and responsive design
+- **Animations**: CSS3 animations and transitions
+
+## 📁 Project Structure
+
+```
+poonam trial web app/
+├── index.html          # Main HTML structure
+├── main.js             # Application logic (TaskManager class)
+├── style.css           # All styling and responsive design
+├── vite.config.js      # Vite configuration
+├── package.json        # Project dependencies
+└── README.md          # This file
+```
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
-
 ### Installation
 
-1. **Clone or download the project**
+1. **Extract the project**
 ```bash
 cd "poonam trial web app"
 ```
 
-2. **Install dependencies**
+2. **Install dependencies** (optional, for development)
 ```bash
 npm install
 ```
 
-3. **Start development server**
+3. **Open in browser**
+Simply open `index.html` in your web browser or use a local server:
+
+```bash
+# Using Python 3
+python -m http.server 8000
+
+# Using Node (live-server)
+npx live-server
+```
+
+Then navigate to `http://localhost:8000` (or the port shown)
+
+### For Development with Vite
 ```bash
 npm run dev
 ```
-
-The portfolio will open in your browser at `http://localhost:3000`
 
 ### Build for Production
 ```bash
 npm run build
 ```
 
-This creates an optimized build in the `dist/` folder.
+## 📖 Usage Guide
 
-### Preview Production Build
-```bash
-npm run preview
-```
+### Creating Tasks
 
-## 📂 Project Structure
+1. **Quick Add**: Use the input field in the main content area
+   - Enter task name
+   - Select category, priority, deadline, and repeat settings
+   - Click "Add Task" button
 
-```
-poonam trial web app/
-├── index.html          # Main HTML file
-├── style.css           # All styling and animations
-├── main.js             # JavaScript with Three.js and interactions
-├── package.json        # Project dependencies
-├── vite.config.js      # Vite configuration
-├── .gitignore          # Git ignore file
-└── README.md           # This file
-```
+2. **Detailed Add**: Click the "➕ New Task" button in the sidebar
+   - Opens modal for comprehensive task details
+   - Add name, description, category, priority, deadline
+   - Add subtasks and set reminders
+   - Click "Save Task"
 
-## 🎯 Sections
+### Managing Tasks
 
-### 1. **Navigation Bar**
-- Fixed navigation with smooth scroll links
-- Mobile hamburger menu
-- Active link highlighting
+- **Complete Task**: Click the checkbox next to the task
+- **Pin Task**: Click the pin icon (☐/📌) to pin/unpin
+- **Edit Task**: Click the pencil icon (✏️) to edit details
+- **Delete Task**: Click the trash icon (🗑️) to remove
+- **Add Subtasks**: Open task modal and add subtasks
 
-### 2. **Hero Section**
-- Large heading with gradient text
-- 3D animated scene with Three.js
-- Call-to-action buttons
-- Scroll indicator with animation
+### Filtering & Organizing
 
-### 3. **About Section**
-- Personal introduction
-- Statistics cards showing experience
-- Professional background
+- **Status Filter**: All Tasks, Active, Completed, Pinned
+- **Category Filter**: Study, Work, Personal, Health, Shopping
+- **Priority Filter**: All Priorities, High, Medium, Low
+- **Search**: Use the search box to find tasks by name or description
 
-### 4. **Skills Section**
-- Organized skill categories (Frontend, Tools, Design)
-- Skill cards with icons
-- Animated progress bars
-- Visual skill level indicators
+### Tracking Progress
 
-### 5. **Projects Section**
-- 6 Featured projects with card design
-- Project descriptions and tags
-- Gradient backgrounds for each project
-- View and source code links
+- **Progress Bar**: Shows percentage of tasks completed
+- **Statistics Modal**: Click 📊 button to view:
+  - Total tasks and completion stats
+  - Tasks by category and priority
+  - Daily goal tracking
 
-### 6. **Contact Section**
-- Contact form with validation
-- Contact information (email, phone, location)
-- Social media links
-- Styled input fields
+### Dark Mode
 
-### 7. **Footer**
-- Copyright information
-- Technology stack mention
+- Click the 🌙 button in the header to toggle dark mode
+- Your preference is automatically saved
+- All UI elements adapt to dark theme
+
+### Setting Daily Goals
+
+1. Click the 📊 Statistics button
+2. Scroll to "🎯 Daily Goal" section
+3. Enter number of tasks to complete
+4. Click "Set Goal"
+5. View your progress in the goal status section
+
+## 🎨 UI Components
+
+### Task Item
+- Checkbox for completion status
+- Task name (strikethrough when completed)
+- Priority badge (High/Medium/Low with colors)
+- Category badge
+- Deadline info with status (Overdue/Today/Upcoming)
+- Recurring indicator
+- Action buttons (Edit/Delete)
+- Subtasks list (if any)
+
+### Sidebar
+- Quick Actions (New Task, Set Goal)
+- Status Filters (All/Active/Completed/Pinned)
+- Category Buttons (6 categories)
+- Priority Filters (All/High/Medium/Low)
+
+### Modals
+- **Task Details Modal**: Create/edit tasks with full details
+- **Statistics Modal**: View analytics and set goals
+
+## 💾 Data Storage
+
+All data is stored in the browser's LocalStorage:
+- **tasks**: Array of all tasks with details
+- **dailyGoal**: Daily task completion goal
+- **darkMode**: Dark mode preference
+
+Data persists until:
+- User clears browser cache/storage
+- User manually deletes data
+
+## 🎯 Keyboard Shortcuts
+
+- **Tab**: Navigate between elements
+- **Enter**: Submit forms, add tasks
+- **Escape**: Close modals
+- **Click outside**: Close modals
+
+## 🐛 Troubleshooting
+
+### Dark Mode Not Working?
+- Ensure JavaScript is enabled
+- Check browser console for errors (F12)
+- Try refreshing the page
+
+### Tasks Not Saving?
+- Check if localStorage is enabled in browser
+- Verify browser privacy settings
+- Check available storage space
+
+### Buttons Not Responding?
+- Ensure main.js is loaded (check Network tab in F12)
+- Clear browser cache and reload
+- Try a different browser
+
+## 📊 Browser Support
+
+- Chrome/Edge: ✅ Full support
+- Firefox: ✅ Full support
+- Safari: ✅ Full support
+- IE11: ⚠️ Limited support
+
+## 🔒 Privacy
+
+- All data is stored locally in your browser
+- No data is sent to external servers
+- Your tasks are completely private
+
+## 📝 License
+
+This project is free to use and modify for personal use.
+
+## 👨‍💻 Development Notes
+
+### File Sizes
+- `main.js`: ~25KB (unminified)
+- `style.css`: ~20KB
+- `index.html`: ~10KB
+
+### Performance
+- Loads in <1 second on modern browsers
+- Minimal memory footprint
+- Smooth 60fps animations
+
+### Key Classes & Methods
+
+**TaskManager Class**
+- `addTask()`: Create new task
+- `deleteTask()`: Remove task
+- `updateTask()`: Modify task
+- `toggleTaskComplete()`: Mark complete/incomplete
+- `getFilteredTasks()`: Apply filters
+- `getStatistics()`: Calculate stats
+- `toggleDarkMode()`: Enable/disable dark mode
+
+## 🚀 Future Enhancements
+
+Potential features for future versions:
+- Cloud sync with account login
+- Collaborative tasks
+- Task templates
+- Recurring task auto-generation
+- Custom categories
+- Drag-and-drop reordering
+- Task time tracking
+- Export to calendar
+- Mobile app (React Native)
+- API integration
+
+## 📞 Support
+
+For issues or suggestions:
+1. Check the troubleshooting section
+2. Clear cache and try again
+3. Test in a different browser
+4. Check browser console for errors (F12 → Console)
+
+---
+
+**Made with ❤️ by Poonam Yadav**
+
+Last Updated: June 2, 2026
 
 ## ⌨️ Keyboard Shortcuts
 
